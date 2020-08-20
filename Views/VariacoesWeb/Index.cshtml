@@ -1,0 +1,152 @@
+﻿@model IEnumerable<RiskDegree.Models.VariacoesWeb>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var CasosValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Sum(x => x.cases));
+    var SuspeitosValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Sum(x => x.suspects));
+    var RecuperadosValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Sum(x => x.refuses));
+    var MortesValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Sum(x => x.deaths));
+
+    List<QuantidadesWeb> dadosTotais = ViewBag.Dados;
+
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Dashboard</h1>
+
+    <!-- ============= DADOS DOS CARDS ================-->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-header">Casos</div>
+                <div class="card-body"><b>@Html.Raw(CasosValues) Confirmados</b></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-header">Suspeitos</div>
+                <div class="card-body"><b>@Html.Raw(SuspeitosValues) Suspeitos</b></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-header">Recuperados</div>
+                <div class="card-body"><b>@Html.Raw(RecuperadosValues) Recuperados</b></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-header">Mortes</div>
+                <div class="card-body"><b>@Html.Raw(MortesValues) Mortes</b></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============= GRÁFICOS ================-->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-chart-area mr-1"></i>Casos por Estados</div>
+                <div class="card-body">
+                    <canvas id="chartCasos" style="width:100%; height:40"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-chart-bar mr-1"></i>Estáticas de Incidentes</div>
+                <div class="card-body">
+                    <canvas id="chartTotal" width="100%" height="250px"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============= DADOS DA TABELA POR ESTADO ================-->
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-table mr-1"></i>Lista de Dados</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.uid)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.uf)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.state)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.cases)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.deaths)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.suspects)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.refuses)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.datetime)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.uid)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.uf)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.state)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.cases)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.deaths)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.suspects)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.refuses)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.datetime)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        var XLabels = JSON.parse('@Html.Raw(Json.Serialize(Model.ToList().Select(x => x.uf)))');
+        var YValues = JSON.parse('@Html.Raw(Json.Serialize(Model.ToList().Select(x => x.cases)))');
+        var TotaisLabels = JSON.parse('@Html.Raw(Json.Serialize(dadosTotais.ToList().Select(x => x.Descricao)))');
+        var TotalValues = JSON.parse('@Html.Raw(Json.Serialize(dadosTotais.ToList().Select(x => x.Quantidade)))');
+
+    </script>
+
+    @{ await Html.RenderPartialAsync("_DadosGraficos"); }
+
+}
